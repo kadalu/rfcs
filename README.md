@@ -56,10 +56,10 @@ for early feedback.
 
 ## The process
 
-In short, to get a major feature added to Ember, one must first get the
+In short, to get a major feature added to Kadalu, one must first get the
 RFC merged into the RFC repo as a markdown file. At that point the RFC
 is 'active' and may be implemented with the goal of eventual inclusion
-into Ember.
+into Kadalu.
 
 * Fork the RFC repo http://github.com/kadalu/rfcs
 * Copy the appropriate template. For most RFCs, this is `0000-template.md`, 
@@ -84,8 +84,8 @@ add a link to the PR in the header of the RFC.
 are much more likely to make progress than those that don't receive any
 comments.
 * Eventually, the [core teams] will decide whether the RFC is a candidate
-for inclusion in Ember.
-* RFCs that are candidates for inclusion in Ember will enter a "final comment
+for inclusion in Kadalu.
+* RFCs that are candidates for inclusion in Kadalu will enter a "final comment
 period" lasting 7 days. The beginning of this period will be signaled with a
 comment and tag on the RFC's pull request. Furthermore,
 [Kadalu's official Twitter account](https://twitter.com/kadaluio) will post a
