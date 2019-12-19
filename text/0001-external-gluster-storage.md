@@ -6,7 +6,7 @@
 
 ## Authors
 
-* Aravinda VK - aravinda@kadalu.io
+* Aravinda Vishwanathapura - aravinda@kadalu.io
 * Amar Tumballi - amar@kadalu.io
 
 ## Summary
@@ -19,7 +19,7 @@ This feature is critical for success of kadalu, as there are many users and admi
 
 ## Detailed design
 
-The need is further discussed in : https://github.com/kadalu/kadalu/issues/36
+The need is further discussed in: [github.com/kadalu/kadalu/issues/36](https://github.com/kadalu/kadalu/issues/36)
 
 ### Connect to remote Glusterd from CSI pods
 Accept the storage configuration with just Volume name and list of primary node and backup nodes, as mentioned in the Github issue.
@@ -102,8 +102,8 @@ This option will tell CSI driver, how the data / PV layout is. If it is a subdir
 
 The initial work towards this has been done in below PRs.
 
-* https://github.com/kadalu/kadalu/pull/88
-* https://github.com/kadalu/kadalu/pull/81
+* [github.com/kadalu/kadalu/pull/88](https://github.com/kadalu/kadalu/pull/88)
+* [github.com/kadalu/kadalu/pull/81](https://github.com/kadalu/kadalu/pull/81)
 
 
 
