@@ -1,5 +1,5 @@
 - Start Date: 2020-01-07
-- Tracking: (leave this empty)
+- Tracking:
 - RFC PR: [kadalu/rfcs#6](https://github.com/kadalu/rfcs/pull/6)
 
 # Test Framework - Binnacle
