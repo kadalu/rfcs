@@ -1,8 +1,6 @@
-language: rust
 script:
-- rev=$(git rev-parse --short HEAD)
-- "(cargo install mdbook --vers 0.3.1 --force || true)"
-- "./generate-book.sh"
+  - rev=$(git rev-parse --short HEAD)
+  - "./generate-book.sh"
 branches:
   only:
   - master
@@ -10,9 +8,6 @@ deploy:
   provider: pages
   skip_cleanup: true
   github_token: "$GITHUB_TOKEN"
-  local_dir: "./book/"
+  local_dir: "./src/"
   on:
     branch: master
-env:
-  global:
-    secure: dwmv04jfNaKkdlXp9KezOyILcE/bSH3Z+Km1H/bSloyz6FqrWW6GXnsqwSJ4DyE3vjhNbzaXvuQpRiHAVNshAtapc4RaiYrKBho/jl4F0+7ONW2Ri/Y+uH8z76Xk9fB1cNrdXi9c/J7RxRzYbVLZXaVNNjVvJ2yP8rsSG1muIbOP5AZdn6Fq6gQjOLH9ndBCfa2EajzgFaO2KLI9uiSz2otFXEih+/39E5Tq/Tpobv+6uB6yQiXhCgfAOqpYQXO2dnMJ4c3ZrAw4YKQldW9tkZve0jeoQep2ZooOEmJG4b1GV6fc4KKEF/ViLuZDIw97bWZT3hwLb6imCT4YJqUa7SsVpYJnAzKqBqtBDQBX6XTpWRhS06Nzmw8gs4zbxguqZ5zswwCe9Ogy4JQgmg2Abq3XexW/Uds9iVHwI8iY7CO1aCSkK4Mqh4+UpzGHhqXW1POR0qamV4h4Ut1ipL2sMjmTHId4iP/DrreVHeA2hpR15qVTPN2BKOUPP/YRBkV8kcfdUkhd6fj8IDgAVx7nb/Z0VGtNkR1IKViCM6li2N+Il6urXyH5skoWM1uRbU921U7miezJiyekzpGtcbVB6q9GP6i1wi4y6Ss4n0ecuUTmSn3u8/4HPtoSDixYzxePDL8+dZziqVkF4h1cO48YClR7Pu7o7ha6Tx+Wh5bDClk=

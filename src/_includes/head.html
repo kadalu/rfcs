@@ -1,0 +1,18 @@
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {%- seo -%}
+  <link rel="stylesheet" href="{{ "/static/css/tailwind.min.css" | relative_url }}">
+  <link rel="stylesheet" href="{{ "/static/css/app.css" | relative_url }}">
+  <link rel="stylesheet" href="{{ "/static/css/syntax-highlight-emacs.css" | relative_url }}">
+  <link href="{{ "/static/fontawesome-free-5.11.2-web/css/all.min.css" | relative_url }}" rel="stylesheet">
+  <link href="{{ "/static/css/fav.png" | relative_url }}" rel="icon" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="{{ "/static/css/fav.png" | relative_url }}" />
+  {%- seo -%}
+  {%- feed_meta -%}
+  {%- if jekyll.environment == 'production' and site.google_analytics -%}
+    {%- include google-analytics.html -%}
+  {%- endif -%}
+  <script type="text/JavaScript" src="{{ "/static/js/app.js" | relative_url }}"></script>
+</head>

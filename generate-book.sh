@@ -1,19 +1,28 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
-if [ ! -d src ]; then
-    mkdir src
-fi
+mkdir -p src/_data
 
-echo "[Introduction](introduction.md)\n" > src/SUMMARY.md
+function set_layout_header()
+{
+    filename=$1
+    echo "---" > src/temp
+    echo "layout: docs" >> src/temp
+    echo "---" >> src/temp
+    cat $filename >> src/temp
+    mv src/temp src/$(basename ${filename})
+}
 
+echo "- section: Kadalu RFCs" > src/_data/chapters.yml
+echo "  chapters:" >> src/_data/chapters.yml
+echo "    - title: Introduction" >> src/_data/chapters.yml
 for f in $(ls text/*.md | sort)
 do
-    echo "- [$(basename $f ".md")]($(basename $f))" >> src/SUMMARY.md
+    echo "    - title: $(basename $f ".md")" >> src/_data/chapters.yml
     cp $f src
+    set_layout_header $f
 done
 
 cp README.md src/introduction.md
-
-mdbook build
+set_layout_header "src/introduction.md"
