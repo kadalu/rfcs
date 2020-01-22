@@ -1,0 +1,46 @@
+---
+layout: default
+---
+<div class="py-10">
+    <div class="mx-auto px-10 md:px-20 w-full sm:w-auto md:w-full xl:w-3/4">
+      <div class="flex flex-wrap">
+        {% assign urlparts = page.url | split: "/" %}
+            <nav class="breadcrumb w-full mb-10" aria-label="breadcrumbs">
+                <a class="px-2" href="{{ site.mainurl }}">Home</a>/
+                <a class="px-2" href="{{ site.urlprefix }}">RFCs</a>/
+                <span class="px-2" aria-current="page">{{ urlparts[1] }}</span>
+            </nav>
+            
+            <div class="w-full md:w-3/12 hidden md:block" id="doc-sidebar">
+                <aside class="menu has-right-border">
+                    {%- for section in site.data.chapters -%}
+                    <h5 class="mb-3 lg:mb-2 text-gray-500 uppercase tracking-wide font-bold text-sm lg:text-xs">
+                        {{ section.section }}
+                    </h5>
+                    <ul class="menu-list mb-10">
+                        {%- for chapter in section.chapters -%}
+                        {%- assign url = chapter.url | default: chapter.title -%}
+                        {%- assign url = url | downcase | replace: " ", "-" | prepend: site.urlprefix | append: ".html" -%}
+                        
+                        <li class="mb-3 lg:mb-1">
+                            <a class="px-2 -mx-2 py-1 transition-fast relative block text-gray-600 font-medium" href="{{ url }}">
+                                <span class="rounded absolute inset-0 bg-blue-300 {% if page.url == url %} opacity-25{% else %} opacity-0{% endif %}"></span>
+                                <span class="relative">{{ chapter.title }}</span>
+                            </a>
+                        </li>
+                        {%- endfor -%}
+                    </ul>
+                    {%- endfor -%}
+                </aside>
+            </div>
+
+            <div class="w-full md:w-9/12">
+                <div class="content px-0 md:px-10 doc-content">
+                    {{ content }}
+                </div>
+            </div>
+
+           
+        </div>
+    </div>
+</div>

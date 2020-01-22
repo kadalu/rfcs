@@ -1,0 +1,56 @@
+<footer class="footer bg-blue-900 text-gray-100 pb-2">
+    <div class="mx-auto px-10 md:px-20 w-full sm:w-auto md:w-full xl:w-3/4">
+        <div class="flex flex-wrap -mx-2">
+            <div class="w-full md:w-2/6 mt-10">
+                <h2 class="text-xl text-yellow-600">Follow Us</h2>
+                <a class="footer-menu" href="/docs">
+                    <i class="fa fa-book pr-2"></i>Documentation
+                </a>
+                <a class="footer-menu" href="https://twitter.com/{{ site.twitter_username }}">
+                    <i class="fab fa-twitter pr-2"></i>Twitter
+                </a>
+                <a class="footer-menu" href="https://linkedin.com/company/{{ site.linkedin }}">
+                    <i class="fab fa-linkedin pr-2"></i>LinkedIn
+                </a>
+                <a class="footer-menu" href="/blog">
+                    <i class="fas fa-blog pr-2"></i>Blog
+                </a>
+            </div>
+            <div class="w-full md:w-2/6 mt-10">
+                <h2 class="text-xl text-yellow-600">Community</h2>
+                <a class="footer-menu" href="https://github.com/{{ site.github_username }}/kadalu">
+                    <i class="fab fa-github pr-2"></i>Github
+                </a>
+                <a class="footer-menu" href="https://github.com/{{ site.github_username }}/kadalu/issues">
+                    <i class="fas fa-bug pr-2"></i>Issues
+                </a>
+                <a class="footer-menu" href="https://join.slack.com/t/kadalu/shared_invite/enQtNzg1ODQ0MDA5NTM2LWMzMTc5ZTJmMjk4MzI0YWVhOGFlZTJjZjY5MDNkZWI0Y2VjMDBlNzVkZmI1NWViN2U3MDNlNDJhNjE5OTBlOGU">
+                    <i class="fab fa-slack pr-2"></i>Slack
+                </a>
+                <a class="footer-menu" href="https://github.com/{{ site.github_username }}">
+                    <i class="fas fa-users pr-2"></i>Projects
+                </a>
+            </div>
+	    <div class="w-full md:w-2/6 mt-10">
+                <h2 class="text-xl text-yellow-600">Write to Us</h2>
+                <a class="footer-menu" href="mailto:hello@kadalu.io">
+                    <i class="fas fa-envelope pr-2"></i>hello@kadalu.io
+		</a>
+	    </div>
+	    <p class="text-center w-full mt-10">
+                &copy; 2020 <strong>Kadalu Software Pvt Ltd.</strong>. All rights reserved.
+            </p>
+        </div>
+  </div>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', '{{ site.google_analytics }}');
+  </script>
+
+</footer>

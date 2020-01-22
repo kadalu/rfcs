@@ -1,2 +1,5 @@
-book/
-src/
+src/*.md
+src/vendor
+src/.jekyll-cache
+src/_data/chapters.yml
+src/_site
