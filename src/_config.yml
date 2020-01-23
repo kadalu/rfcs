@@ -29,7 +29,7 @@ github_username:  kadalu
 linkedin: kadalu-io
 mainurl: https://kadalu.io
 urlprefix: "/rfcs/"
-permalink: /:title
+permalink: /:title.html
 
 # Build settings
 plugins:
