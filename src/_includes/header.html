@@ -20,7 +20,7 @@
                     <a class="block md:inline-block px-2 py-2 hover:bg-blue-700 {% if page.url == "/" %}bg-blue-700{% endif %}" href="{{ "/" | prepend: site.mainurl  }}">Home</a>
                     <a class="block md:inline-block px-2 py-2 hover:bg-blue-700 {% if page.url contains "/blog" %}bg-blue-700{% endif %}" href="{{ "/blog" | prepend: site.mainurl  }}">Blog</a>
                     <a class="block md:inline-block px-2 py-2 hover:bg-blue-700 {% if page.url == "/community" %}bg-blue-700{% endif %}" href="{{ "/community" | prepend: site.mainurl  }}">Community</a>
-                    <a class="block md:inline-block px-2 py-2 hover:bg-blue-700 {% if page.url contains "/docs" %}bg-blue-700{% endif %}" href="{{ site.urlprefix  }}/docs">Docs</a>
+                    <a class="block md:inline-block px-2 py-2 hover:bg-blue-700 {% if page.url contains "/docs" %}bg-blue-700{% endif %}" href="{{ "/docs" | prepend: site.mainurl }}">Docs</a>
                     <a class="block md:inline-block px-2 py-2 hover:bg-blue-700 {% if page.url == "/faq" %}bg-blue-700{% endif %}" href="{{ "/faq" | prepend: site.mainurl  }}">FAQ</a>
                 </div>              
           </div>
