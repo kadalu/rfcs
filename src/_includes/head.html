@@ -11,8 +11,5 @@
   <link rel="apple-touch-icon" href="{{ "/static/css/fav.png" | relative_url }}" />
   {%- seo -%}
   {%- feed_meta -%}
-  {%- if jekyll.environment == 'production' and site.google_analytics -%}
-    {%- include google-analytics.html -%}
-  {%- endif -%}
   <script type="text/JavaScript" src="{{ "/static/js/app.js" | relative_url }}"></script>
 </head>
