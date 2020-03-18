@@ -24,5 +24,7 @@ do
     set_layout_header $f
 done
 
+cp -r text/images src/
+
 cp README.md src/introduction.md
 set_layout_header "src/introduction.md"
