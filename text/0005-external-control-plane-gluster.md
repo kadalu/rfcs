@@ -1,6 +1,7 @@
 - Start Date: 2020-02-17
 - Tracking:
-- RFC PR: [kadalu/rfcs#0000](https://github.com/kadalu/rfcs/pull/0000)
+- RFC PR: [kadalu/rfcs#0014](https://github.com/kadalu/rfcs/pull/14)
+- Status: PROPOSED
 
 # External Control Plane for GlusterFS
 

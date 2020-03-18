@@ -1,7 +1,7 @@
 - Start Date: 2020-01-24
 - Tracking: kadalu#37
 - RFC PR: [kadalu/rfcs#13](https://github.com/kadalu/rfcs/pull/13)
-
+- Status: COMPLETED (in kadalu-v0.6.0)
 
 # Thin Arbiter support for Kadalu Storage
 

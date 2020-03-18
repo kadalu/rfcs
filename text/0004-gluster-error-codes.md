@@ -1,6 +1,7 @@
 - Start Date: 2020-01-24
 - Tracking:
 - RFC PR: [kadalu/rfcs#12](https://github.com/kadalu/rfcs/pull/12)
+- Status: In-Progress
 
 # Error codes in Gluster
 
