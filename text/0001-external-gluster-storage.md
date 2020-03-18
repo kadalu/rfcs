@@ -1,6 +1,7 @@
 - Start Date: 2019-11-30
 - Tracking: 
 - RFC PR: [kadalu/rfcs#2](https://github.com/kadalu/rfcs/pull/2)
+- Status: COMPLETED (kadalu-v0.5.0)
 
 # Supporting External Gluster Cluster with Kadalu
 
