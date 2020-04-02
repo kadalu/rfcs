@@ -11,6 +11,7 @@ function set_layout_header()
     echo "layout: docs" >> src/temp
     echo "---" >> src/temp
     cat $filename >> src/temp
+    sed -i -e "s#(images/#(rfcs/images/#g" src/temp
     mv src/temp src/$(basename ${filename})
 }
 
@@ -22,7 +23,6 @@ do
     echo "    - title: $(basename $f ".md")" >> src/_data/chapters.yml
     cp $f src
     set_layout_header $f
-    sed -i -e "s#(images/#(rfcs/images/#g" $f
 done
 
 cp -r text/images src/
