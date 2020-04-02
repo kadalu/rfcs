@@ -22,6 +22,7 @@ do
     echo "    - title: $(basename $f ".md")" >> src/_data/chapters.yml
     cp $f src
     set_layout_header $f
+    sed -i -e "s#(images/#(rfcs/images/#g" $f
 done
 
 cp -r text/images src/
