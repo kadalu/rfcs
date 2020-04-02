@@ -11,7 +11,7 @@ function set_layout_header()
     echo "layout: docs" >> src/temp
     echo "---" >> src/temp
     cat $filename >> src/temp
-    sed -i -e "s#(images/#(rfcs/images/#g" src/temp
+    sed -i -e "s#(images/#(/rfcs/images/#g" src/temp
     mv src/temp src/$(basename ${filename})
 }
 
