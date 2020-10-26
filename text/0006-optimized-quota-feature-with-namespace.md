@@ -96,7 +96,7 @@ Just run `statfs()` on all dirs which has Quota set, and send a flag to update s
 * Considering the namespace resolution needs to be handled at brick side, when a quota limit is set, every brick (or brick process) should have the limit information sent.
   - This can be done by xattr, so brick gets it, and also is preserved!
 
-* Advised method is adding quota limit info before writing any information to directory. Even otherwise we don't need quota crawl for updating quota-limit, but do a `du -s -B 1 $dir` and write the output into xattr.
+* Advised method is adding quota limit info before writing any information to directory. Even otherwise we don't need quota crawl for updating quota-limit, but do a `du -s -b $dir` and write the output into xattr.
 
 * No need to write dir info to volfile, which means no graph switch problems.
 
