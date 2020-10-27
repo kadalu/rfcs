@@ -1,6 +1,3 @@
----
-layout: docs
----
 - Start Date: 2020-08-19
 - Tracking: (leave this empty)
 - RFC PR: [kadalu/rfcs#19](https://github.com/kadalu/rfcs/pull/19)
