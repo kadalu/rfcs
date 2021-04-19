@@ -1,20 +1,20 @@
-- Start Date: 2020-01-07
-- Tracking:
-- RFC PR: [kadalu/rfcs#6](https://github.com/kadalu/rfcs/pull/6)
-- Status: IMPLEMENTED (Beta state)
+---
+start_date: 2020-01-07
+rfc_pr: https://github.com/kadalu/rfcs/pull/6
+status: IMPLEMENTED
+---
 
-# Test Framework - Binnacle
+= Test Framework - Binnacle
 
-## Authors
+== Authors
 
 - Aravinda Vishwanathapura <aravinda@kadalu.io>
 
-## License
+== License
 
-Binnacle is licensed under the [Apache 2.0
-license](https://www.apache.org/licenses/LICENSE-2.0)
+Binnacle is licensed under the https://www.apache.org/licenses/LICENSE-2.0[Apache 2.0 license]
 
-## Introduction
+== Introduction
 
 Proposal for a Test framework with the focus for Tester's delight!
 
@@ -28,21 +28,22 @@ the prefix `TEST`. For example, the command `touch
 to see if it succeeds. To convert this into a test case, write as
 below.
 
-```
+----
 # File: hello.t
 TEST touch /var/www/html/index.html
-```
+----
 
 That's it! Run the test file using the binnacle command, and it gives
 the beautiful Output as below.
 
-```console
+[source,console]
+----
 $ binnacle hello.t
 hello.t .. ok
 All tests successful.
 Files=1, Tests=1,  0 wallclock secs ( 0.03 usr  0.01 sys +  0.07 cusr  0.05 csys =  0.16 CPU)
 Result: PASS
-```
+----
 
 The verbose(`-v`) Output gives other useful details about executed
 command and error lines in case of errors.
@@ -52,56 +53,58 @@ cases.
 
 **Note**: This framework is not for Unit testing
 
-## Features
+== Features
 
-- [Multi node support](#Multi-node-support)
-- [Bash style variable substitution](#Bash-style-variable-substitution)
-- [Validate Return code](#Validate-Return-code)
-- [Validate the return value](#Validate-the-return-value)
-- [To check if any expected value from the Output](#To-check-if-any-expected-value-from-the-Output)
-- [Timeout for tests](#Timeout-for-tests)
-- [Pipelines](#Pipelines)
-- [Extending functionalities by writing Python function or Bash function](#Extending-functionalities-by-writing-Python-function-or-Bash-function)
-- [Recording Output of a command](#Recording-Output-of-a-command)
-- [Loop](#Loop)
-- [Ease of use](#Ease-of-use)
+- link:#Multi-node-support[Multi node support]
+- link:#Bash-style-variable-substitution[Bash style variable substitution]
+- link:#Validate-Return-code[Validate Return code]
+- link:#Validate-the-return-value[Validate the return value]
+- link:#To-check-if-any-expected-value-from-the-Output[To check if any expected value from the Output]
+- link:#Timeout-for-tests[Timeout for tests]
+- link:#Pipelines[Pipelines]
+- link:#Extending-functionalities-by-writing-Python-function-or-Bash-function[Extending functionalities by writing Python function or Bash function]
+- link:#Recording-Output-of-a-command[Recording Output of a command]
+- link:#Loop[Loop]
+- link:#Ease-of-use[Ease of use]
 
-### Multi-node support
+[#Multi-node-support]
+=== Multi-node support
 
 Just specify `NODE=<nodename>` before any test to run in that
 node. For example,
 
-```
+----
 NODE=node1.example.com
 TEST command1
 TEST command2
 
 NODE=node2.example.com
 TEST command3
-```
+----
 
 **Note**: Passwordless SSH access is required from the current node
 for all the nodes which are specified in Tests.
 
-### Bash style variable substitution
+[#Bash-style-variable-substitution]
+=== Bash style variable substitution
 
-```
+----
 VOLNAME=gv1
 TEST gluster volume start ${VOLNAME}
-```
+----
 
-
-### Validate Return code
+[#Validate-Return-code]
+=== Validate Return code
 
 `TEST` helper validates the return code of the command, for example,
 
-```
+----
 TEST stat /etc/glusterfs/glusterd.vol
-```
+----
 
 Above command is equivalent to the following bash script.
 
-```
+----
 stat /etc/glusterfs/glusterd.vol
 if [ $? -eq 0 ]
 then
@@ -109,85 +112,91 @@ then
 else
     echo "FAIL"
 fi
-```
+----
 
 To test other return code use `--ret=<return-code>`. For example,
 
-```
+----
 TEST --ret=1 stat /non/existing/file
-```
+----
 
 To test the return code is not some value. For example,
 
-```
+----
 TEST --not=0 stat /non/existing/file
-```
+----
 
-### Validate the return value
+[#Validate-the-return-value]
+=== Validate the return value
 
 To verify the Output of commands, `EXPECT` can be used.
 
-```
+----
 EXPECT -v 10 wc -l /test/output
-```
+----
 
-### To check if any expected value from the Output
+[#To-check-if-any-expected-value-from-the-Output]
+=== To check if any expected value from the Output
 
-```
+----
 EXISTS "127.0.0.1 node1.example.com" cat /etc/hosts
-```
+----
 
-### Timeout for tests
+[#Timeout-for-tests]
+=== Timeout for tests
 
 All the utilities discussed above have a variant with `_WITHIN`
 suffix. For example,
 
-```
+----
 TEST_WITHIN -t 60 stat /path/to/pid/file
 EXPECT_WITHIN -t 10 wc -l /test/output
-```
+----
 
-### Pipelines
+[#Pipelines]
+=== Pipelines
 
 Pass Output of one command to other function using `|`. For example,
 
-```
+----
 TEST cat /etc/hosts | grep "node1.example.com"
-```
+----
 
-### Extending functionalities by writing Python function or Bash function
+[#Extending-functionalities-by-writing-Python-function-or-Bash-function]
+=== Extending functionalities by writing Python function or Bash function
 
 The name of command after `TEST` or any other utilities can be a
 Python function. For example, below command calls Python/bash function
 `brick_kill`.
 
-```
+----
 NODE=node2.example.com
 TEST brick_kill "/exports/bricks/${volname}/brick2/brick"
-```
+----
 
 **Note**: Make sure to use the function name different than the actual
 command. For example, if a function is created as `gluster` then that
 function will get called instead of actual Gluster command.
 
-
-### Recording Output of a command
+[#Recording-Output-of-a-command]
+=== Recording Output of a command
 
 Sometimes we can't run the same command multiple times, but Output
 needs to be verified multiple times. For example,
 
-```
+----
 TEST gluster volume info --record-output /tmp/status.dat
 EXPECT -v 2 grep "ID:" /tmp/info.dat | wc -l
 EXPECT -v 1 grep "Status:" /tmp/info.dat | grep "Running" | wc -l
-```
+----
 
-### Loop
+[#Loop]
+=== Loop
 
 Repeating tests are straightforward to implement, define `LOOP_DATA`
 as JSON, and then use indentation to define loop tasks.
 
-```
+----
 LOOP_DATA="""
 [
     {
@@ -208,23 +217,24 @@ LOOP_DATA="""
 LOOP:
     NODE=$node
     TEST mkfs.xfs $device
-```
+----
 
 In case of external JSON data,
 
-```
+----
 LOOP_DATA_FILE=device_config.json
 LOOP:
     NODE=$node
     TEST mkfs.xfs $device
-```
+----
 
-### Ease of use
+[#Ease-of-use]
+=== Ease of use
 
 No special syntax. The example below is to test the Gluster Volume
 force start command.
 
-```
+----
 N1=node1.example.com
 N2=node2.example.com
 N3=node3.example.com
@@ -244,11 +254,11 @@ NODE=$N1
 TEST_WITHIN -t 60 gluster volume status ${volname} | match_num_bricks_online 1
 TEST gluster volume start ${volname} force
 TEST_WITHIN -t 60 gluster volume status ${volname} | match_num_bricks_online 2
-```
+----
 
-### Kadalu Test example
+=== Kadalu Test example
 
-```
+----
 MASTER=master.example.com
 N1=kube-node1.example.com
 N2=kube-node2.example.com
@@ -302,26 +312,25 @@ EXPECT_WITHIN -t 60 -v 1 kubectl get pvc | grep $PVC_NAME | grep Bound | wc -l
 TEST kubectl create -f $APP_POD_FILE
 EXPECT_WITHIN -t 180 -v 1 kubectl get pods | grep $APP_POD_NAME | grep Running | wc -l
 
-```
+----
 
-## How it works?
+== How it works?
 
-Similar to Gluster upstream tests, Binnacle uses [Test Anything
-Protocol(TAP)](https://en.wikipedia.org/wiki/Test_Anything_Protocol). This
+Similar to Gluster upstream tests, Binnacle uses https://en.wikipedia.org/wiki/Test_Anything_Protocol[Test Anything Protocol(TAP)]. This
 test framework provides syntax sugar on top of the shell script.
 
 Binnacle generates shell script from the given test file and then
 executes the generated script using
-[prove](https://metacpan.org/pod/distribution/Test-Harness/bin/prove)
+https://metacpan.org/pod/distribution/Test-Harness/bin/prove[prove]
 command.
 
-## Core functions
+== Core functions
 
 Core functions like `TEST`, `EXPECT`, `EXISTS` etc. will be written
 using Python and bash. These functions print the Output in TAP format
 so that prove tool can understand it.
 
-## Binnacle test to Shell script conversion
+== Binnacle test to Shell script conversion
 
 A few special syntaxes used are not valid bash script. Those need to
 be converted. For example, Pipe character needs to be escaped
@@ -335,7 +344,7 @@ understand `TEST`, `EXPECT`, and other functions.
 Loop syntax used in the test file needs to be expanded into a valid
 bash script.
 
-## How is this different from Gluster upstream Tests
+== How is this different from Gluster upstream Tests
 
 We are inspired by the Gluster upstream regression tests, which use shell
 scripts for writing test cases. Binnacle provides an additional layer
@@ -348,27 +357,27 @@ tests framework.
 - Detailed easy to parse Output in verbose mode
 - Ease of use
 
-## Code repository
+== Code repository
 
-[github/kadalu/binnacle](https://github.com/kadalu/binnacle) will be
+https://github.com/kadalu/binnacle will be
 the project repository for the Binnacle project. While running, it
 looks for plugins in `~/.local/lib/binnacle/plugins` directory.
 
 Binnacle repository will not contain Test cases and plugins specific
 to different projects.
 
-## Known issues
+== Known issues
 
 - The test framework will not work on the Windows operating
   system. Windows support can be adopted in the future but not a
   priority for now.
 
-## Implementation
+== Implementation
 
 Not yet started.
 
-## Thanks
-- Thanks [Sac](https://github.com/sac), for suggesting the beautiful
+== Thanks
+- Thanks https://github.com/sac[Sac], for suggesting the beautiful
   name for the test framework and valuable inputs for the design.
-- Thanks [Amar](https://github.com/amarts), for the valuable inputs to
+- Thanks https://github.com/amarts[Amar], for the valuable inputs to
   the design of this framework with more emphasis on ease of use.

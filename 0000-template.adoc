@@ -1,19 +1,22 @@
-- Start Date: (fill me in with today's date, YYYY-MM-DD)
-- Tracking: (leave this empty)
-- RFC PR: [kadalu/rfcs#0000](https://github.com/kadalu/rfcs/pull/0000)
+---
+start_date: (fill me in with today's date, YYYY-MM-DD)
+rfc_pr: https://github.com/kadalu/rfcs/pull/0000
+status: SUBMITTED
+available_since: (leave this empty)
+---
 
-# <RFC title>
+= <RFC title>
 
-## Summary
+== Summary
 
 > One paragraph explanation of the feature.
 
-## Motivation
+== Motivation
 
 > Why are we doing this? What use cases does it support? What is the expected
 > outcome?
 
-## Detailed design
+== Detailed design
 
 > This is the bulk of the RFC.
 
