@@ -1,11 +1,12 @@
-- Start Date: 2020-02-17
-- Tracking:
-- RFC PR: [kadalu/rfcs#0014](https://github.com/kadalu/rfcs/pull/14)
-- Status: PROPOSED
+---
+start_date: 2020-02-17
+rfc_pr: https://github.com/kadalu/rfcs/pull/14
+status: PROPOSED
+---
 
-# External Control Plane for GlusterFS
+= External Control Plane for GlusterFS
 
-## Summary
+== Summary
 
 Glusterd is the default management daemon used for managing Gluster
 Filesystem. It is responsible for maintaining the meta details and
@@ -17,12 +18,12 @@ change, it will be updated in all the 50 nodes.  The new design will
 not use Glusterd, instead delegates the GlusterFS management
 responsibilities to an external ReST server.
 
-## Authors
+== Authors
 
-- Aravinda Vishwanathapura \<aravinda@kadalu.io\>
-- Amar Tumballi \<amar@kadalu.io\>
+- Aravinda Vishwanathapura <aravinda@kadalu.io>
+- Amar Tumballi <amar@kadalu.io>
 
-## Motivation
+== Motivation
 
 Advantages compared to Glusterd design are,
 
@@ -36,7 +37,7 @@ Advantages compared to Glusterd design are,
   syncing each Cluster state change to nodes.
 - Easily migrate the Control server to other nodes when required.
 
-## Detailed design
+== Detailed design
 
 The control plane maintains all the states related to users, clusters,
 volumes, and others. CLI or web UI will request a Control plane to
@@ -50,9 +51,9 @@ agent is required. All communications to a node should be done via a
 message queue. Each node agent will maintain a heartbeat and updates
 the information to the Control plane in periodic intervals.
 
-![External Control Plane](images/control-plane-gluster.png)
+image::images/control-plane-gluster.png[External Control Plane]
 
-### Control plane
+=== Control plane
 
 The main server where all states will be stored and provides APIs
 required for managing the Gluster filesystem. The primary
@@ -71,15 +72,15 @@ Responsibilities of Control plane are,
 - Multi cluster support
 - Authentication
 
-### Web/Mobile/Desktop app:
+=== Web/Mobile/Desktop app:
 Web/Mobile UI, which consumes the APIs and provides a rich interface
 for Gluster management.
 
-### CLI
+=== CLI
 CLI is also a ReST client, which interacts with the Control server to
 manage the Gluster Cluster(s).
 
-### Node agent:
+=== Node agent:
 Node agent will be installed in all the nodes and communicates with
 the control plane for all actions. Maintains a heartbeat with the
 control plane and exports the status.
@@ -102,9 +103,9 @@ node agent is unable to connect to Control Plane or node is down, then
 the task state will remain as "QUEUED" and node state will be changed
 to "UNREACHABLE".
 
-![Task Lifecycle](images/state-life-cycle.jpg)
+image::images/state-life-cycle.jpg[Task Lifecycle]
 
-### Communication between Control Server and Node agent:
+=== Communication between Control Server and Node agent:
 
 The control server will not have access to node agents; Node agents
 will connect to the Control server and gets the details. Node agents
@@ -112,7 +113,7 @@ can establish a WebSocket connection so that the Control server can
 push the notification when needed.
 
 
-## Monitoring and Dashboard
+== Monitoring and Dashboard
 
 The dashboard of the Control plane shows the real-time status of the
 cluster. Visualizing historical data is possible by using Prometheus
@@ -130,7 +131,7 @@ dashboard to visualize the metrics from Prometheus. (Note: Grafana
 dashboards can be embedded into any website, may be embedded in the
 WebUI of control plane)
 
-## Backup and Recovery of Cluster metadata
+== Backup and Recovery of Cluster metadata
 
 Every change to Cluster meta information will be versioned. On a
 handshake, each node agent downloads the cluster meta information and
@@ -138,7 +139,7 @@ saves it locally. If the control server node goes down, then it can be
 started in some other node by restoring data from any node agent(Or
 choose the node agent which contains the latest cluster data).
 
-## High availability of Control plane
+== High availability of Control plane
 
 Control Server is no different from a web server, use all the
 available scaling and load balancing techniques for hosting it. Use
@@ -150,13 +151,13 @@ possible by using the Gluster Volume as storage for the
 database. (This is based on the fact that Replica 3 Gluster volume can
 be run as service without the need of Glusterd)
 
-## Usage:
+== Usage:
 
 CLI commands used in the following examples. CLI is one of the
 mechanisms to control the Cluster.  Other ways to communicate with the
 Control plane are Web UI, ReST APIs, etc.
 
-### User management
+=== User management
 
 In the case of the self-hosted Control server, the first user will
 become the Admin user. Create more users using admin privileges.
@@ -171,39 +172,43 @@ token will be saved in `~/.gluster/token.json` on a successful login.
 All consecutive commands will use the token saved in the file
 mentioned above. To logout, run the following command.
 
-```
+[source,console]
+----
 $ kadalu login
 Username:
 Password:
 Logged in successfully. The token is saved to ~/.kadalu/token.json
-```
+----
 
 If the Gluster control plane is self-managed, then use the `--url`
 parameter.
 
-```
+[source,console]
+----
 $ kadalu login --url https://node1.example.com:8080
-```
+----
 
 All consecutive commands will use the token saved in the file
 mentioned above. To logout, run the following command.
 
-```
+[source,console]
+----
 $ kadalu logout
 Logged out successfully
-```
+----
 
-### Create Cluster and nodes registration
+=== Create Cluster and nodes registration
 
 Cluster registration is Optional. The default cluster will be created
 with the name `default`. Registering Cluster provides logical
 namespace to differentiate the volumes. For example, one Cluster can
 be `mycluster`, and another one can be `backup_cluster`.
 
-```
+[source,console]
+----
 $ kadalu cluster add mycluster
 Cluster creation request sent.
-```
+----
 
 After registering a Cluster(or for the default Cluster), the Control
 server will generate a token. Set the token as an environment
@@ -215,80 +220,89 @@ Once the node agent registers with the Control Server, it establishes
 a persistent connection(Or polling) to listen to the events from the
 Control server.
 
-### Cluster Status
+=== Cluster Status
 
 Cluster status can be checked using,
 
-```
+[source,console]
+----
 $ kadalu cluster status
-```
+----
 
 Cluster status will show the state of each node. If a node connects to
 the control server, then it shows that node is Online, else it shows
 Unreachable.
 
-### Device Management
+=== Device Management
 
 Register the Storage devices using the following command.
 
-```
+[source,console]
+----
 $ kadalu device add -c mycluster node1.example.com --device /dev/vdc
-```
+----
 
 or
 
-```
+[source,console]
+----
 $ kadalu device add -c mycluster node1.example.com --path /exports/bricks/b1
-```
+----
 
 Multiple device or path can be specified for a node.
 
 The storage device is not yet part of any Volume but helps to design
 utilities like dynamic Volume provisioning like below command.
 
-```
+[source,console]
+----
 $ kadalu volume create -c mycluster gvol1 --replica3 --size 100GiB
-```
+----
 
-### Volume Create
+=== Volume Create
 
 Run the following command to create the Volume.
 
-```
+[source,console]
+----
 $ kadalu volume create -c mycluster gvol1  \
       node1.example.com:/exports/storage1
 Volume creation request sent.
-```
+----
 
 The volume will start automatically once created. Use `--no-start` if
 only Create is required.
 
-### Volume Start
+=== Volume Start
 
-```
+[source,console]
+----
 $ kadalu volume start -c mycluster gvol1
 Volume start request sent.
-```
+----
 
-### Volume Stop
+=== Volume Stop
 
-```
+[source,console]
+----
 $ kadalu volume stop -c mycluster gvol1
 Volume stop request sent.
-```
+----
 
-### Volume Delete
+=== Volume Delete
 
-```
+[source,console]
+----
 $ kadalu volume delete -c mycluster gvol1
 Volume delete request sent.
-```
+----
 
-### Status
+=== Status
 
-```
+[source,console]
+----
 $ kadalu volume status -c mycluster gvol1
-```
+----
 
 The controller waits for node agents to acknowledge the status, so the
 intermediate state introduced for every action. For example, “Volume
@@ -300,11 +314,12 @@ StartFailed, Stopping, Stopped, StopFailed, Deleting, DeleteFailed
 **Note**: Export failure reason also from Node agents. If the node is
 down then, Status can show the same("Unreachable")
 
-### Failure report!
+=== Failure report!
 
 The following command shows the last failure details.
 
-```
+[source,console]
+----
 $ kadalu failurereport
 Volume creation failed in the following nodes.
 
@@ -318,15 +333,16 @@ directory is not present in that node.
 How to fix:
 
 Log in to the node and create the root directory.
-```
+----
 
-### Volume Options
+=== Volume Options
 
-```
+[source,console]
+----
 $ kadalu volume set -c mycluster gvol1 <optname> <optvalue>
 $ kadalu volume reset -c mycluster gvol1 <optname>
 $ kadalu volume get -c mycluster gvol1 [<optname>]
-```
+----
 
 Control Server will validate Volume Options. The changed option will
 be picked by the Node agent to regenerate the brick, self-heal volfile
@@ -337,57 +353,61 @@ If only client option changes, then the wrapper script, which started
 the mount/client, will pick up the latest configuration and reloads
 the client process.
 
-### Volume expand
+=== Volume expand
 
 Start the node agent(Set env variable or config file to point to
 Control plane) and then run the following command to expand Volume.
 
-```
+[source,console]
+----
 $ kadalu volume expand -c mycluster gvol1
        node4.example.com:/export/storage2
-```
+----
 
 **Note**: Connected clients will get notification about Graph change.
 
 
-### Rebalance
+=== Rebalance
 
 Start rebalance process using,
 
-```
+[source,console]
+----
 $ kadalu volume rebalance start -c mycluster gvol1
-```
+----
 
 Other commands available are, `stop`, `status`
 
-### Volume Shrink
+=== Volume Shrink
 
 Not for Version 1. TBD(Remove brick, Rebalance etc)
 
-### Geo-replication
+=== Geo-replication
 
 Preparing the remote nodes for accepting ssh connections from master
 nodes is required(A separate tool will be provided for the same).
 
-### Create Geo-replication session using,
+=== Create Geo-replication session using,
 
-```
+[source,console]
+----
 $ kadalu geo-replication create -c mycluster \
     --remote-user geouser --remote-cluster mycluster2 \
     mastervol remotevol
 Geo-replication session creation request sent.
 ID: 068EB4E3-7E00-4CB5-899A-4C522AEC0F98
-```
+----
 
 The geo-rep session will start automatically after create. To avoid
 this, `--no-start` can be used.
 
 Start Geo-replication session using,
 
-```
+[source,console]
+----
 $ kadalu geo-replication start <ID> -c mycluster
 Geo-replication start request sent.
-```
+----
 
 Similarly, other commands available are: stop, delete, config-get,
 config-set, config-reset, and status.
@@ -395,7 +415,7 @@ config-set, config-reset, and status.
 **Bonus**: The control plane itself can decide Active/Passive worker
 per subvolume.
 
-## Snapshot
+== Snapshot
 
 TBD. Two possible approaches available are,
 
@@ -403,6 +423,6 @@ TBD. Two possible approaches available are,
 - Similar to the existing method, Control Server can notify all mounts
   to enable barrier and notify node agents to take backend snapshot.
 
-## Quota management
+== Quota management
 
 TBD.
