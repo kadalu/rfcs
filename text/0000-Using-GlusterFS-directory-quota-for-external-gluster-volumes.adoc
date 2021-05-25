@@ -1,0 +1,50 @@
+---
+start_date: 2021-05-25
+rfc_pr: https://github.com/kadalu/rfcs/pull/22
+status: SUBMITTED
+available_since: (leave this empty)
+---
+
+= Using GlusterFS directory quota to set capacity limitation for external gluster volumes 
+
+== Summary
+
+It is necessary to set a capacity limit for PVs. When external gluster volume is used, kaDalu uses kadalu-quotad to set the capacity limit on the newly created volumes. However, the current implementation of kadalu-quotad does not support distributed volumes on the external GlusterFS servers. Our proposal uses GlusterFS directory quota for external gluster volumes so that kaDalu can limit the capacity of the distributed volumes. 
+
+== Motivation
+
+Since kaDalu v0.8.0, KaDalu uses simple-quota to limit the capacity of PVs. However the simple-quota is available only in kadalu-storage (A fork of GlusterFS for kaDalu). When other versions of GlusterFS are used, kaDalu uses kadalu-quotad to limit the capacity of PVs on external gluster volumes. However, kadalu-quotad does not support distributed volumes. In addition, a user need to install the kadalu-quotad package to the external GlusterFS servers and it might not be a possible option in some production systems. GlusterFS's directory quota solves these problems. Our approach supports distributed volumes and does not require any additional setup on the external GlusterFS servers.
+
+== Detailed design
+
+In our approach, the provisioner sets GlusterFS directory quota to the subdirectories assigned to PVs on the external GlusterFS server. The provisioner connects to the server via ssh by using the secret key and username of the external GlusterFS server in K8s Secret. A user creates the K8s Secret during kadalu install to enable this function.
+
+=== Implementation
+
+The provisioner sets GlusterFS directory quota to the PV’s subdirectories in CreateVolume which execute PV provisioning and subdirectory creating. When creating a PV and a subdirectory, the provisioner connects to the external GlusterFS server via ssh and sets the directory Quota. The ssh private key is given by the user as K8s Secret in advance. If a private key file and username are specified in K8s Secret, the provisioner executes the following command in CreateVolume. 
+
+----
+# ssh -i <ssh_privatekey> <username>@<Glusterhost> sudo gluster volume quota <gluster_volume_name> limit-usage <quota-path> <quota-size>
+# ssh -i <ssh_privatekey> <username>@<Glusterhost> sudo gluster volume set <gluster_volume_name> quota-deem-statfs on
+----
+
+If K8s Secret is not set, the provisioner works in the same way with as usual kadalu-quotad.
+
+=== I/F
+Before the kaDalu installation, a user creates K8s Secret with the server private key and the username of the external GlusterFS servers by executing the following commands.
+
+----
+#kubectl create namespace kadalu 
+#kubectl create secret generic glusterquota-ssh-secret --from-literal=glusterquota-ssh-username=<username> --from-file=ssh-privatekey=<ssh_privatekey_path> -n kadalu
+----
+
+Then install kaDalu in the usual procedure.
+
+When the K8s Secrets is set before the installation, kaDalu uses GlusterFS directory quota for external gluster volumes instead of kadalu-quotad.
+
+=== Error Handling
+If ssh fails, an error message will be output and volume provisioning will fail. 
+If the username or the ssh private key file are empty, the provisioner will work in the same way as the usual kadalu-quotad.
+
+=== Implementation
+See the attached patch to slack #dev-rfc channel.
