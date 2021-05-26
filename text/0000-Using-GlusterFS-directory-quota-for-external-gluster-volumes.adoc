@@ -52,5 +52,3 @@ When the K8s Secrets is set before the installation, kaDalu uses GlusterFS direc
 If ssh fails, an error message will be output and volume provisioning will fail. 
 If the username or the ssh private key file are empty, the provisioner will work in the same way as the usual kadalu-quotad.
 
-=== Implementation
-See the attached patch to slack #dev-rfc channel.
