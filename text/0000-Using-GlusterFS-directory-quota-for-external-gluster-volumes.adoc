@@ -11,6 +11,12 @@ available_since: (leave this empty)
 
 It is necessary to set a capacity limit for PVs. When external gluster volume is used, kaDalu uses kadalu-quotad to set the capacity limit on the newly created volumes. However, the current implementation of kadalu-quotad does not support distributed volumes on the external GlusterFS servers. Our proposal uses GlusterFS directory quota for external gluster volumes so that kaDalu can limit the capacity of the distributed volumes. 
 
+== Authors
+
+
+- Yugo Yamauchi <yugo.yamauchi.cf@hitachi.com>
+
+
 == Motivation
 
 Since kaDalu v0.8.0, KaDalu uses simple-quota to limit the capacity of PVs. However the simple-quota is available only in kadalu-storage (A fork of GlusterFS for kaDalu). When other versions of GlusterFS are used, kaDalu uses kadalu-quotad to limit the capacity of PVs on external gluster volumes. However, kadalu-quotad does not support distributed volumes. In addition, a user need to install the kadalu-quotad package to the external GlusterFS servers and it might not be a possible option in some production systems. GlusterFS's directory quota solves these problems. Our approach supports distributed volumes and does not require any additional setup on the external GlusterFS servers.
