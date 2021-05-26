@@ -1,6 +1,6 @@
 ---
 start_date: 2021-05-25
-rfc_pr: https://github.com/kadalu/rfcs/pull/22
+rfc_pr: https://github.com/kadalu/rfcs/pull/24
 status: SUBMITTED
 available_since: (leave this empty)
 ---
@@ -40,8 +40,10 @@ If K8s Secret is not set, the provisioner works in the same way with as usual ka
 Before the kaDalu installation, a user creates K8s Secret with the server private key and the username of the external GlusterFS servers by executing the following commands.
 
 ----
-#kubectl create namespace kadalu 
-#kubectl create secret generic glusterquota-ssh-secret --from-literal=glusterquota-ssh-username=<username> --from-file=ssh-privatekey=<ssh_privatekey_path> -n kadalu
+# kubectl create namespace kadalu 
+# kubectl create secret generic glusterquota-ssh-secret \
+    --from-literal=glusterquota-ssh-username=<username> \
+    --from-file=ssh-privatekey=<ssh_privatekey_path> -n kadalu
 ----
 
 Then install kaDalu in the usual procedure.
