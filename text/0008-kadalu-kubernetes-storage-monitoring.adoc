@@ -1,0 +1,153 @@
+---
+start_date: 2021-08-29
+rfc_pr: https://github.com/kadalu/rfcs/pull/0000
+status: SUBMITTED
+available_since: (leave this empty)
+---
+
+= Monitoring Kadalu Kubernetes Storage
+
+== Summary
+
+Kadalu Storage pods are distributed across the nodes and it is very difficult to collect the metrics from all the Pods and aggregate the details to makes sense of the data. Even though each Pods are capable of exporting the metrics and set the necessary annotations required to make it discover by Prometheus server, it is very difficult to add Prometheus rules and alerts without having the full knowledge of the Gluster Cluster. It is also difficult to fetch these metrics if a non-Prometheus application is interested monitor the Cluster.
+
+The proposed solution collects the metrics from all the Pods managed by Kadalu Operator and exports the *Metrics* and *Events* from single API.
+
+== Authors
+
+- Aravinda Vishwanathapura <aravinda@kadalu.io>
+
+
+== Motivation
+
+- Business logic in one place - If the metrics are exported by individual pods then business logic should be added in the Prometheus server to make decisions.
+- Get all metrics in one place.
+- Events and Alerts - Kadalu Operator can generate events and alerts based on the metrics collected.
+- Kadalu Operator gets more power - Kadalu Operator can take better decisions for the internal maintenance activities depending on the Cluster state. For example, smart rolling upgrade based on Heal pending and Server pods health metrics.
+- Supports non-Prometheus consumers.
+- Additional information export for non-Prometheus API users - For example, list of Volume options configured, Version information etc.
+- External monitoring integration is easy - Since all metrics are available in single place, it will be easy to integrate the metrics with external Cloud hosted monitoring solutions.
+
+== Detailed design
+
+Kadalu Operator runs `kubectl get pods -n kadalu` to get the list of all the resources available in Kadalu namespace. Additionally it fetches the nodes list and all the Storage information from the ConfigMap. With these information a few metrics will be derived as follows.
+
+- Number of Up CSI node plugins by comparing the list of nodes and the list returned by `get pods` command.
+- Pod health based on "Running" state - Up if all the containers in the Pod are up, Partial if only a few containers in the Pod are Up. Down if all Containers are not Running. Operator also knows the expected containers or processes, based on the state of the Pod it also marks the state for respective processes. For example, if a server pod is down, then mark server, self heal daemon and exporter states as down. Type of Storage will be fetched from the ConfigMap, self heal daemon is marked as down only if the Volume type is Replicate or Disperse Volume.
+- Pod Uptime in seconds.
+
+Instead of exporting the metric with Pod name, Kadalu Operator organizes the metrics as proper hierarchy. For example, Metrics from the server pods will be added to the respective brick in the Volume info.
+
+From the collected list of Pod IPs, call HTTP API(`GET /_api/metrics`) for each IPs and collect the metrics(Only if Pod state is Running). If any IP produces Connection refused errors then mark that Pod's health as Down/Unknown.
+
+Once the metrics are collected from all the Pods, post process the metrics and re-expose them under single API.
+
+.Prometheus Metrics
+----
+GET /metrics
+----
+
+.JSON output
+----
+GET /metrics.json
+----
+
+=== Types of Metrics
+
+==== Count Metrics
+
+Metrics related to the resource counts.
+
+- Number of Storages
+- Number of PVs
+- Number of Pods in the Kadalu namespace.
+
+==== Health Metrics
+
+Metrics related to the state of the resources.
+
+- How to make sure that the Kadalu Operator is running successfully?
+- How to know if the CSI Provisioner stopped processing further requests?
+- How to know if the Self heal daemon is stopped working?
+- How to know if a resource is restarted?
+
+==== Utilization Metrics
+
+Metrics related to the resource utilization like Storage, CPU, Memory, Inodes etc.
+
+- How to know which Storage pool is getting full?
+- How to know if any resource is consuming more CPU or Memory?
+
+==== Performance Metrics
+
+Metrics related to Storage I/O performance, Provisioning, mount performance.
+
+- How to measure if the Storage Performance is improved or degraded?
+- How quick a PV is provisioned?
+
+==== Events
+
+A few Events can be derived from the collected metrics by comparing with the latest data with the previously collected metrics. For example,
+
+- *Restarted Event* - If the current uptime of a resource is less than the previous one.
+- *Upgraded Event* - If the current version is greater than the previous one.
+- *Option Change* - If the list of Volume options is different than the previously collected options data.
+- *New Storage added* - When the latest list of metrics shows a new Storage compared to previously collected data.
+
+These events will be exposed by `GET /events` URL. These events also helps to understand the storage better when viewed along with the historical metrics. For example, if a Performance degradation is observed in the chart and associated event says that a Option is changed or one Replica server Pod was down or the Cluster is upgraded to a new Version.
+
+==== Alerts
+
+All events may not be useful, some events may be very noisy. For example, an Event related to changes to utilization is very noisy. But becomes very important when it meets some criteria.
+
+- When utilization crosses 70%.
+- Performance improvement/degrade.
+- Storage is down.
+
+=== List of Metrics
+
+- *Number of Storage pools*
+- *Number of PVs*
+- *Number of Storage Units/Bricks*
+- *Operator Health* - Operator is running or not
+- *Storage Units Health* - Health of Brick processes, `1 for Up, and 0 for Down`
+- *Self Heal daemon Health*
+- *Health of Metrics exporter*
+- *CSI Provisioner Health*
+- *CSI/Quotad health*
+- *CSI/Mounts health* (Based on expected number of Volumes in ConfigMap and number of mount processes). Gluster client process will continue to run even if all the bricks are down, it waits for the brick processes and re-connects as soon as they are available. Detect this by doing a regular IO from the mount or parsing the log files for `ENOTCONN` errors.
+- *CSI/Storage and PV utilization*
+- *Storage Units Utilization*
+- *Storage units/bricks CPU,Memory and Uptime metrics*
+- *CSI Provisioner CPU,Memory and Uptime metrics*
+- *CSI Node plugins CPU,Memory and Uptime metrics*
+- *Heal Pending metrics* - Run `glfsheal` command and get the heal pending count per Volume.
+- *CSI/Node plugin mounts health*
+
+Advanced metrics can be introduced in the future versions
+
+- *Performance metrics* - Using Gluster Volume profile and other tools available.
+
+=== Implementation
+
+Every Kadalu container(Including the Operator) will have a HTTP server process that exposes one API `/_api/metrics`. This API need not be exposed outside the Cluster. Only Operator needs access to this API.
+
+Operator container will have a HTTP server process that exposes following two new APIs along with `/_api/metrics`.
+
+----
+GET /metrics
+GET /metrics.json
+----
+
+Prometheus annotations required only for Operator Pod yaml file as follows.
+
+[source,yaml]
+----
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+----
+
+=== Health subcommand for `kubectl-kadalu`
+
+Consume `GET /metrics.json` API and present the information as required.
