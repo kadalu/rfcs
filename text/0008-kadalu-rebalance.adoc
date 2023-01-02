@@ -1,0 +1,145 @@
+---
+start_date: 2022-12-12
+rfc_pr: https://github.com/kadalu/rfcs/pull/26
+status: SUBMITTED
+available_since: (leave this empty)
+---
+
+= Kadalu Storage Volume Rebalance
+
+When a Kadalu Storage Volume expands or shrinks, each Storage unit gets the new hash range. Fix the layout of the new Storage units to allow hashing of the new files to them.
+
+After adding new distribute groups, the existing files distribution are not uniform. A few of the files present in the existing bricks may belongs to the freshly added Storage units. Recalculate the hash and distribute the files to the respective Storage units as required.
+
+== Fix layout Rebalance (Moana based)
+
+Trigger the fix layout rebalance automatically after expanding the Kadalu Storage Volume(Or while shrinking). Check the status of the fix layout by running the "volume expand status" command.
+
+----
+kadalu volume create DEV/myvol                  \
+    replica node1.example.com:/exports/myvol/s1 \
+            node2.example.com:/exports/myvol/s2 \
+            node3.example.com:/exports/myvol/s3
+
+kadalu volume expand DEV/myvol                  \
+    replica node4.example.com:/exports/myvol/s4 \
+            node5.example.com:/exports/myvol/s5 \
+            node6.example.com:/exports/myvol/s6
+
+----
+
+----
+kadalu volume expand DEV/myvol status
+----
+
+Volume expand API will start a service in the first node (May change this later based on the node online status) from the participating nodes list. Example of the new service:
+
+----
+kadalu _rebalance <pool-name>/<volume-name> <storage-unit-path> \
+    --volfile-servers <servers> --fix-layout
+----
+
+----
+kadalu _rebalance dev/vol1 /exports/vol1 --fix-layout \
+    --volfile-servers server1:49252
+----
+
+**Note**: Remove the status file before starting the fix-layout rebalance (Ex: `/var/lib/kadalu/rebalance-fix-layout-%2Fexports%2Fvol1%2Fs1.json` for the Storage unit `/exports/vol1/s1`)
+
+== Fix layout (Operator based)
+
+Operator parses the CRD modification and understands that Storage Pool expansion is triggered. After starting all the new Server pods. Start a Job that triggers the Fix layout rebalance. kubectl-kadalu can get the status of rebalance by checking the status of the Job.
+
+Refer the above example command to be run as job.
+
+== Migrate data (Moana based)
+
+This is the manual process can be triggered by admins based on the needs (When no space available in the existing Storage units, or when the Cluster usage is minimal).
+
+"Volume expand" command also prints the note with the steps to run the Rebalance command. Rebalance helps to distribute the existing files uniformly among the Storage units.
+
+----
+kadalu volume rebalance-start <POOL>/<VOLUME>
+----
+
+Stop and Start command will start the rebalance process from the beginning, it doesn't remember the previous progress.
+
+----
+kadalu volume rebalance-stop <POOL>/<VOLUME>
+----
+
+Above command calls the respective API that internally starts a service in respective Storage unit nodes. **Note**: These services will halt once the Rebalance process completes its job. Do not start the service in every nodes of the Volume, start only in the node of the first Storage unit from each distribute groups.
+
+Service in each node will mount the Volume locally and runs the below command (More info related to this sub-command is covered in the next section)
+
+----
+kadalu _rebalance <pool-name>/<volume-name> <storage-unit-path> \
+    --volfile-servers <servers> --migrate-data
+----
+
+**Note**: Remove the status file before starting the fix-layout rebalance (Ex: `/var/lib/kadalu/rebalance-migrate-data-%2Fexports%2Fvol1%2Fs1.json` for the Storage unit `/exports/vol1/s1`)
+
+== Migrate data (Operator based)
+
+Introduce a new CRD to start the rebalance process.
+
+[source,yaml]
+----
+# File: rebalance-storage-pool-1.yaml
+---
+apiVersion: kadalu-operator.storage/v1alpha1
+kind: KadaluStorageRebalance
+metadata:
+  # This will be used as Job name
+  name: rebal-sp1-dec-2022
+spec:
+  pool: storage-pool1
+----
+
+Operator gets the Storage pool info from configmap and then identifies the first Storage unit(Brick) from each distribute groups. Based on the node affinity of each Storage unit, Operator starts the Rebalance job (Refer next section).
+
+Delete this CRD to stop the Rebalance job.
+
+`kubectl-kadalu` will collect the status from each Jobs and shows the aggregated status.
+
+----
+kubectl kadalu rebalance-status <Pool-name>
+----
+
+== Tool to handle the rebalance
+
+This tool will crawl the Volume from the backend (Storage unit or Brick path), for each file it calls the virtual setxattr from the mount path. The virtual xattr is implemented by GlusterFS that handles the rebalance of the file. The tool initially captures the backend usage details by running the `du` command and estimates the progress after each file rebalance.
+
+----
+kadalu _rebalance <pool-name>/<volume-name> <storage-unit-path> \
+    --volfile-servers=<servers> --fix-layout|--migrate-data
+----
+
+=== Status file
+
+Example status file of Fixed layout rebalance
+
+./var/lib/kadalu/rebalance-fix-layout-%2Fexports%2Fvol1%2Fs1.json
+[source,json]
+----
+{
+    "complete": true,
+    "total_dirs": 3,
+    "duration_seconds": 0
+}
+----
+
+Example status file of migrate data rebalance
+
+./var/lib/kadalu/rebalance-migrate-data-%2Fexports%2Fvol1%2Fs1.json
+[source,json]
+----
+{
+    "complete": true,
+    "progress": 100,
+    "scanned_bytes": 4816896,
+    "total_bytes": 4816896,
+    "duration_seconds": 0,
+    "estimate_seconds": 0
+}
+----
